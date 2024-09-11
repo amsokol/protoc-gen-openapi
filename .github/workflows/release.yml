@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
+        # build and publish in parallel: linux/amd64, linux/arm64, windows/amd64, windows/arm64, darwin/amd64, darwin/arm64
         goos: [linux, windows, darwin]
         goarch: [amd64, arm64]
     steps:
@@ -27,4 +27,3 @@ jobs:
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
         compress_assets: OFF
-        binary_name: "protoc-gen-openapi-${{ matrix.goos }}-${{ matrix.goarch }}"
