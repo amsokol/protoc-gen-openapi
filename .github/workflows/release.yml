@@ -20,12 +20,18 @@ jobs:
         goos: [linux, windows, darwin]
         goarch: [amd64, arm64]
     steps:
-    - uses: actions/checkout@v4
-    - uses: wangyoucao577/go-release-action@v1
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Get Tag Name
+      run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+    - name: Build and release Go binaries
+      uses: wangyoucao577/go-release-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        asset_name: "protoc-gen-openapi-${{ secrets.RELEASE_TAG }}-${{ matrix.goos }}-${{ matrix.goarch }}"
+        asset_name: "protoc-gen-openapi-${TAG_NAME}-${{ matrix.goos }}-${{ matrix.goarch }}"
         compress_assets: OFF
         sha256sum: TRUE
