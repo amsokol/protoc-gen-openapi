@@ -29,9 +29,9 @@ jobs:
     - name: Build and release Go binaries
       uses: wangyoucao577/go-release-action@v1
       with:
-        asset_name: "protoc-gen-openapi123--${{ matrix.goos }}-${{ matrix.goarch }}"
+        asset_name: "protoc-gen-openapi-${{ env.TAG_NAME }}-${{ matrix.goos }}-${{ matrix.goarch }}"
         compress_assets: OFF
-        sha256sum: ON
+        sha256sum: TRUE
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
