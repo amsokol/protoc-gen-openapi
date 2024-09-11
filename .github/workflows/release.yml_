@@ -1,0 +1,74 @@
+# .github/workflows/release.yml
+
+name: Release Go Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger the workflow only on version tags (e.g., v1.0.0)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.1'  # Specify the Go version you want to use
+
+    - name: Build binaries
+      run: |
+        GOOS=linux GOARCH=amd64 go build -o protoc-gen-openapi-linux-amd64
+        GOOS=linux GOARCH=arm64 go build -o protoc-gen-openapi-linux-arm64
+        GOOS=darwin GOARCH=arm64 go build -o protoc-gen-openapi-darwin-arm64
+        GOOS=darwin GOARCH=amd64 go build -o protoc-gen-openapi-darwin-amd64
+        GOOS=windows GOARCH=amd64 go build -o protoc-gen-openapi-windows-amd64.exe
+
+#    - name: Archive release binaries
+#      run: |
+#        tar -czf myapp-linux-amd64.tar.gz myapp-linux-amd64
+#        tar -czf myapp-darwin-amd64.tar.gz myapp-darwin-amd64
+#        zip myapp-windows-amd64.zip myapp-windows-amd64.exe
+
+    - name: Create Release
+      id: create_release
+      uses: elgohr/Github-Release-Action@v5
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag: ${{ github.ref }}
+        title: Release ${{ github.ref }}
+
+    - name: Upload Linux amd64 Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./protoc-gen-openapi-linux-amd64
+        asset_name: protoc-gen-openapi-linux-amd64
+        asset_content_type: application/octet-stream
+
+    - name: Upload macOS Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./myapp-darwin-amd64.tar.gz
+        asset_name: myapp-darwin-amd64.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Upload Windows Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./myapp-windows-amd64.zip
+        asset_name: myapp-windows-amd64.zip
+        asset_content_type: application/zip
